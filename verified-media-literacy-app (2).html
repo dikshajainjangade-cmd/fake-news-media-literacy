@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VERIFIED. — Fake News Detection &amp; Media Literacy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#FAF7F0;
+    --ink:#141414;
+    --sub:#6E6A5E;
+    --card:#FFFFFF;
+    --line:#E4E0D2;
+    --lime:#D6FF3F;   --lime-ink:#32400A;
+    --coral:#FF6B4A;  --coral-ink:#5C2011;
+    --sky:#79CBFF;    --sky-ink:#0B3E63;
+    --mustard:#FFC93C;--mustard-ink:#4A3300;
+    --pink:#FF7FB0;   --pink-ink:#5C1636;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--cream); color:var(--ink);
+    font-family:'Inter',sans-serif; -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.disp{font-family:'Space Grotesk',sans-serif;}
+  .mono{font-family:'Space Mono',monospace;}
+  a{color:inherit;}
+  img{max-width:100%;display:block;}
+
+  /* ---------- layout shells ---------- */
+  .wrap{max-width:1080px; margin:0 auto; padding:0 24px;}
+  section{padding:64px 0;}
+  section h2{font-size:clamp(28px,4vw,42px); margin:0 0 8px; font-weight:700; letter-spacing:-0.01em;}
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:'Space Mono',monospace; font-weight:700; font-size:12px;
+    text-transform:uppercase; letter-spacing:.08em;
+    padding:6px 14px; border:2px solid var(--ink); border-radius:999px;
+    background:var(--card); box-shadow:3px 3px 0 var(--ink);
+    margin-bottom:18px; transform:rotate(-2deg);
+  }
+  .eyebrow .dot{width:9px;height:9px;border-radius:50%;display:inline-block;}
+  .lede{color:var(--sub); font-size:16px; max-width:640px; line-height:1.55; margin:0 0 36px;}
+
+  /* ---------- top nav ---------- */
+  header.topbar{
+    position:sticky; top:0; z-index:50; background:rgba(250,247,240,.92);
+    backdrop-filter:blur(6px); border-bottom:2px solid var(--ink);
+  }
+  .topbar-inner{
+    max-width:1080px; margin:0 auto; padding:14px 24px;
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+  }
+  .logo{display:flex; align-items:center; gap:10px; font-weight:700; font-size:19px;}
+  .logo .stamp-mark{
+    width:34px;height:34px;border:2.5px solid var(--ink);border-radius:10px;
+    display:flex;align-items:center;justify-content:center;background:var(--lime);
+    font-family:'Space Mono',monospace; font-weight:700; font-size:13px; transform:rotate(-6deg);
+  }
+  nav.tabs{display:flex; gap:6px; overflow-x:auto; scrollbar-width:none; flex:1 1 auto; min-width:0;}
+  nav.tabs::-webkit-scrollbar{display:none;}
+  nav.tabs button{
+    font-family:'Space Mono',monospace; font-size:12.5px; font-weight:700;
+    text-transform:uppercase; letter-spacing:.03em; white-space:nowrap;
+    padding:9px 14px; border-radius:999px; border:2px solid var(--ink);
+    background:var(--card); color:var(--ink); cursor:pointer; transition:.15s;
+    flex:none;
+  }
+  nav.tabs button.active{background:var(--ink); color:var(--cream);}
+  nav.tabs button:hover{transform:translateY(-1px);}
+
+  .score-chip{
+    font-family:'Space Mono',monospace; font-weight:700; font-size:12.5px;
+    border:2px solid var(--ink); border-radius:999px; padding:7px 12px;
+    background:var(--mustard); color:var(--mustard-ink); white-space:nowrap;
+  }
+
+  /* ---------- generic card ---------- */
+  .card{
+    background:var(--card); border:2px solid var(--ink); border-radius:18px;
+    box-shadow:5px 5px 0 var(--ink); padding:24px;
+  }
+  .grid{display:grid; gap:20px;}
+  .grid-2{grid-template-columns:repeat(2,1fr);}
+  .grid-3{grid-template-columns:repeat(3,1fr);}
+  @media(max-width:760px){ .grid-2,.grid-3{grid-template-columns:1fr;} }
+
+  .btn{
+    font-family:'Space Mono',monospace; font-weight:700; text-transform:uppercase;
+    letter-spacing:.04em; font-size:13px; border-radius:999px; border:2.5px solid var(--ink);
+    padding:14px 26px; cursor:pointer; display:inline-flex; align-items:center; gap:8px;
+    transition:transform .12s;
+  }
+  .btn:active{transform:translateY(2px);}
+  .btn-primary{background:var(--ink); color:var(--cream); box-shadow:4px 4px 0 var(--lime);}
+  .btn-ghost{background:var(--card); color:var(--ink); box-shadow:4px 4px 0 var(--ink);}
+  .btn:hover{transform:translateY(-2px);}
+  .btn:disabled{opacity:.45; cursor:not-allowed; transform:none;}
+
+  /* ---------- HOME ---------- */
+  .hero{padding:72px 0 48px; position:relative;}
+  .hero h1{
+    font-size:clamp(38px,6vw,64px); line-height:1.03; font-weight:700;
+    letter-spacing:-0.02em; margin:0 0 22px; max-width:820px;
+  }
+  .hl{
+    background:var(--lime); padding:2px 10px; border-radius:8px; display:inline-block;
+    transform:rotate(-1.5deg); box-shadow:3px 3px 0 var(--ink);
+  }
+  .hero p.sub{font-size:18px; color:var(--sub); max-width:560px; line-height:1.6; margin:0 0 32px;}
+  .hero-ctas{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:46px;}
+  .stat-row{display:flex; gap:16px; flex-wrap:wrap;}
+  .sticker{
+    font-family:'Space Mono',monospace; font-weight:700; font-size:13px;
+    border:2px solid var(--ink); border-radius:14px; padding:12px 18px;
+    background:var(--card); box-shadow:4px 4px 0 var(--ink);
+  }
+  .sticker b{display:block; font-size:22px; font-family:'Space Grotesk',sans-serif;}
+  .stat-row .sticker:nth-child(1){background:var(--lime); transform:rotate(-3deg);}
+  .stat-row .sticker:nth-child(2){background:var(--sky); transform:rotate(2deg);}
+  .stat-row .sticker:nth-child(3){background:var(--coral); transform:rotate(-2deg);}
+
+  .home-panel{
+    margin-top:8px; border:2px dashed var(--line); border-radius:20px; padding:28px;
+  }
+  .home-panel h3{margin:0 0 14px; font-size:20px;}
+  .mini-list{display:grid; gap:10px; grid-template-columns:repeat(2,1fr);}
+  @media(max-width:640px){.mini-list{grid-template-columns:1fr;}}
+  .mini-list a{
+    display:flex; align-items:center; gap:10px; padding:12px 14px;
+    border:2px solid var(--ink); border-radius:12px; background:var(--card);
+    text-decoration:none; font-weight:600; font-size:14px; box-shadow:3px 3px 0 var(--ink);
+    transition:.12s;
+  }
+  .mini-list a:hover{transform:translate(-2px,-2px); box-shadow:5px 5px 0 var(--ink);}
+  .mini-list .sw{width:12px;height:12px;border-radius:3px;flex:none;border:1.5px solid var(--ink);}
+
+  /* ---------- LEARN modules ---------- */
+  .module{border:2px solid var(--ink); border-radius:16px; background:var(--card); overflow:hidden;}
+  .module + .module{margin-top:14px;}
+  .module summary{
+    list-style:none; cursor:pointer; padding:18px 20px; display:flex; align-items:center;
+    gap:14px; font-weight:700; font-size:16px;
+  }
+  .module summary::-webkit-details-marker{display:none;}
+  .module .num{
+    font-family:'Space Mono',monospace; font-weight:700; font-size:13px;
+    width:34px;height:34px;border-radius:9px;border:2px solid var(--ink);
+    display:flex;align-items:center;justify-content:center; flex:none;
+  }
+  .module[open] summary{border-bottom:2px solid var(--ink);}
+  .module .body{padding:18px 20px 22px 68px; color:var(--sub); font-size:14.5px; line-height:1.6;}
+  .module summary .chev{margin-left:auto; font-family:'Space Mono',monospace; font-size:18px;}
+
+  /* ---------- QUIZ ---------- */
+  .quiz-shell{max-width:640px; margin:0 auto;}
+  .progress-row{display:flex; gap:6px; margin-bottom:28px;}
+  .progress-row i{
+    flex:1; height:8px; border-radius:4px; background:var(--line); border:1.5px solid var(--ink);
+  }
+  .progress-row i.done{background:var(--ink);}
+  .progress-row i.now{background:var(--mustard);}
+
+  .clip{
+    position:relative; background:var(--card); border:2px solid var(--ink); border-radius:4px;
+    padding:34px 28px; transform:rotate(-1deg); box-shadow:6px 6px 0 var(--ink); margin-bottom:26px;
+  }
+  .clip::before,.clip::after{
+    content:""; position:absolute; width:46px; height:18px; background:rgba(255,201,60,.55);
+    border:1px solid rgba(20,20,20,.25); top:-10px;
+  }
+  .clip::before{left:24px; transform:rotate(-6deg);}
+  .clip::after{right:24px; transform:rotate(5deg);}
+  .clip .kicker{font-family:'Space Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--sub); margin-bottom:10px;}
+  .clip h3{font-size:clamp(19px,3vw,25px); line-height:1.28; margin:0; font-weight:700;}
+
+  .choice-row{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:22px;}
+  @media(max-width:520px){.choice-row{grid-template-columns:1fr;}}
+  .choice{
+    font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:17px;
+    padding:20px; border-radius:14px; border:2.5px solid var(--ink); cursor:pointer;
+    background:var(--card); box-shadow:4px 4px 0 var(--ink); transition:.12s;
+  }
+  .choice:hover:not(:disabled){transform:translate(-2px,-2px); box-shadow:6px 6px 0 var(--ink);}
+  .choice:disabled{cursor:default;}
+  .choice.real{color:var(--sky-ink);}
+  .choice.fake{color:var(--coral-ink);}
+  .choice.correct-pick{background:var(--lime);}
+  .choice.wrong-pick{background:var(--coral); color:#fff;}
+  .choice.reveal-correct{outline:3px solid var(--ink); outline-offset:2px;}
+
+  .feedback{display:none; margin-bottom:20px;}
+  .feedback.show{display:block; animation:pop .25s ease;}
+  @keyframes pop{from{transform:scale(.9); opacity:0;} to{transform:scale(1); opacity:1;}}
+  .stamp{
+    display:inline-block; font-family:'Space Mono',monospace; font-weight:700; font-size:14px;
+    text-transform:uppercase; letter-spacing:.08em; padding:8px 16px; border-radius:8px;
+    border:3px double currentColor; transform:rotate(-4deg); margin-bottom:12px;
+  }
+  .stamp.good{color:#2E6B1F; }
+  .stamp.bad{color:#B23A1A;}
+  .why{color:var(--sub); font-size:14.5px; line-height:1.55; max-width:560px;}
+  .quiz-actions{display:flex; justify-content:flex-end;}
+
+  .results{text-align:center; padding:20px 0;}
+  .results .grade-stamp{
+    display:inline-block; font-family:'Space Mono',monospace; font-weight:700;
+    font-size:15px; text-transform:uppercase; letter-spacing:.06em; padding:14px 26px;
+    border:3px double var(--ink); border-radius:10px; transform:rotate(-3deg); margin-bottom:18px;
+  }
+  .results .score-big{font-size:56px; font-weight:700; font-family:'Space Grotesk',sans-serif; margin:0 0 6px;}
+
+  /* ---------- SIGNS ---------- */
+  .sign-card{background:var(--card); border:2px solid var(--ink); border-radius:16px; padding:20px; box-shadow:4px 4px 0 var(--ink);}
+  .sign-card .flag{
+    width:36px;height:36px;border-radius:9px;border:2px solid var(--ink);
+    display:flex;align-items:center;justify-content:center; font-size:16px; margin-bottom:12px;
+  }
+  .sign-card h3{margin:0 0 6px; font-size:15.5px;}
+  .sign-card p{margin:0; font-size:13.5px; color:var(--sub); line-height:1.5;}
+
+  /* ---------- TIPS ---------- */
+  .tip-row{display:flex; gap:18px; align-items:flex-start; padding:18px 0; border-bottom:2px dashed var(--line);}
+  .tip-row:last-child{border-bottom:none;}
+  .tip-num{
+    font-family:'Space Mono',monospace; font-weight:700; font-size:15px;
+    width:40px;height:40px;border-radius:11px;border:2px solid var(--ink); flex:none;
+    display:flex;align-items:center;justify-content:center; background:var(--sky);
+  }
+  .tip-row h3{margin:0 0 4px; font-size:16.5px;}
+  .tip-row p{margin:0; color:var(--sub); font-size:14px; line-height:1.55;}
+
+  /* ---------- EXAMPLES ---------- */
+  .ex-card{background:var(--card); border:2px solid var(--ink); border-radius:16px; padding:22px; box-shadow:4px 4px 0 var(--ink);}
+  .ex-card h3{margin:0 0 12px; font-size:17px; line-height:1.35;}
+  .tag-row{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;}
+  .flaw-tag{
+    font-family:'Space Mono',monospace; font-size:11px; font-weight:700; text-transform:uppercase;
+    padding:5px 10px; border-radius:999px; border:1.5px solid var(--ink); background:var(--mustard); color:var(--mustard-ink);
+  }
+  .ex-card p{margin:0; font-size:13.5px; color:var(--sub); line-height:1.55;}
+
+  /* ---------- RESOURCES ---------- */
+  .res-group h3{
+    font-family:'Space Mono',monospace; font-size:13px; text-transform:uppercase; letter-spacing:.06em;
+    color:var(--sub); margin:0 0 14px;
+  }
+  .res-group{margin-bottom:34px;}
+  .res-list{display:grid; gap:10px;}
+  .res-item{
+    display:flex; justify-content:space-between; align-items:center; gap:12px;
+    padding:14px 18px; border:2px solid var(--ink); border-radius:13px; background:var(--card);
+    box-shadow:3px 3px 0 var(--ink);
+  }
+  .res-item .name{font-weight:700; font-size:14.5px;}
+  .res-item .desc{font-size:12.5px; color:var(--sub);}
+  .res-item .go{font-family:'Space Mono',monospace; font-size:12px; font-weight:700; flex:none;}
+
+  footer{border-top:2px solid var(--ink); padding:28px 0; color:var(--sub); font-size:12.5px;}
+  .view{display:none;}
+  .view.active{display:block;}
+
+  @media(max-width:680px){
+    .topbar-inner{flex-wrap:wrap; row-gap:10px;}
+    .logo{order:1;}
+    .score-chip{order:2;}
+    nav.tabs{order:3; width:100%; flex:none;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
+    html{scroll-behavior:auto;}
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="logo"><span class="stamp-mark">V/</span>VERIFIED.</div>
+    <nav class="tabs" id="tabs">
+      <button data-view="home" class="active">Home</button>
+      <button data-view="learn">Learn</button>
+      <button data-view="quiz">Quiz</button>
+      <button data-view="signs">Spot &amp; Verify</button>
+      <button data-view="examples">Headlines</button>
+      <button data-view="resources">Resources</button>
+    </nav>
+    <div class="score-chip" id="scoreChip">Score: 0/0</div>
+  </div>
+</header>
+
+<!-- ================= HOME ================= -->
+<div class="view active" id="view-home">
+  <div class="wrap hero">
+    <span class="eyebrow"><span class="dot" style="background:var(--lime)"></span>Fake News Detection &amp; Media Literacy Programme</span>
+    <h1>Spot it <span class="hl">before</span> you forward it.</h1>
+    <p class="sub">A hands-on media literacy toolkit — learn how misinformation works, test yourself against real-looking headlines, and pick up habits that actually stick.</p>
+    <div class="hero-ctas">
+      <button class="btn btn-primary" onclick="showView('quiz')">Take the quiz →</button>
+      <button class="btn btn-ghost" onclick="showView('learn')">Start learning</button>
+    </div>
+    <div class="stat-row">
+      <div class="sticker">6<b id="statModules">Learning modules</b></div>
+      <div class="sticker">5<b>Quiz headlines</b></div>
+      <div class="sticker">8<b>Warning signs</b></div>
+    </div>
+  </div>
+
+  <div class="wrap" style="padding-top:0;">
+    <div class="home-panel">
+      <h3>Jump straight to a section</h3>
+      <div class="mini-list">
+        <a onclick="showView('learn')"><span class="sw" style="background:var(--lime)"></span>Learning modules — the basics of misinformation</a>
+        <a onclick="showView('signs')"><span class="sw" style="background:var(--coral)"></span>Common signs of fake news</a>
+        <a onclick="showView('signs')"><span class="sw" style="background:var(--sky)"></span>Fact-checking tips, step by step</a>
+        <a onclick="showView('examples')"><span class="sw" style="background:var(--mustard)"></span>Real vs. misleading headline gallery</a>
+        <a onclick="showView('quiz')"><span class="sw" style="background:var(--pink)"></span>"Real or Fake?" interactive quiz</a>
+        <a onclick="showView('resources')"><span class="sw" style="background:var(--ink)"></span>Fact-checking tools &amp; resources</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= LEARN ================= -->
+<div class="view" id="view-learn">
+  <div class="wrap">
+    <span class="eyebrow"><span class="dot" style="background:var(--lime)"></span>Learn</span>
+    <h2>Six modules, no fluff.</h2>
+    <p class="lede">Short reads that explain how misinformation is made, why it spreads, and where to look for the seams. Tap a module to expand it.</p>
+    <div id="modulesList"></div>
+  </div>
+</div>
+
+<!-- ================= QUIZ ================= -->
+<div class="view" id="view-quiz">
+  <div class="wrap">
+    <span class="eyebrow"><span class="dot" style="background:var(--pink)"></span>Real or fake?</span>
+    <h2>Five headlines. You decide.</h2>
+    <p class="lede">Each one is written to look like something you'd actually see in your feed. Pick real or fake, then check the tell.</p>
+
+    <div class="quiz-shell">
+      <div class="progress-row" id="progressRow"></div>
+
+      <div id="quizActive">
+        <div class="clip">
+          <div class="kicker" id="clipKicker">Headline 1 of 5</div>
+          <h3 id="headlineText">Loading…</h3>
+        </div>
+
+        <div class="choice-row">
+          <button class="choice real" id="pickReal">✅ Real</button>
+          <button class="choice fake" id="pickFake">🚩 Fake</button>
+        </div>
+
+        <div class="feedback" id="feedback">
+          <div class="stamp" id="stampEl">Correct</div>
+          <p class="why" id="whyText"></p>
+        </div>
+
+        <div class="quiz-actions">
+          <button class="btn btn-primary" id="nextBtn" disabled>Next headline →</button>
+        </div>
+      </div>
+
+      <div class="results card" id="quizResults" style="display:none;">
+        <div class="grade-stamp" id="gradeStamp">Fact-Check Rookie</div>
+        <p class="score-big" id="finalScore">0/5</p>
+        <p class="why" style="margin:0 auto 22px; text-align:center;" id="gradeBlurb">Nice start.</p>
+        <button class="btn btn-ghost" onclick="restartQuiz()">Try again</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= SIGNS & TIPS ================= -->
+<div class="view" id="view-signs">
+  <div class="wrap">
+    <span class="eyebrow"><span class="dot" style="background:var(--coral)"></span>Spot &amp; verify</span>
+    <h2>The tells fake news can't hide.</h2>
+    <p class="lede">Eight patterns show up again and again. None of them alone proves a story is fake — but three or more together is a big red flag.</p>
+    <div class="grid grid-3" id="signsGrid"></div>
+  </div>
+
+  <div class="wrap" style="padding-top:16px;">
+    <span class="eyebrow"><span class="dot" style="background:var(--sky)"></span>Fact-checking tips</span>
+    <h2>Before you hit share.</h2>
+    <p class="lede">A six-step routine you can run in under two minutes, on almost anything.</p>
+    <div class="card" id="tipsCard" style="padding:8px 24px;"></div>
+  </div>
+</div>
+
+<!-- ================= EXAMPLES ================= -->
+<div class="view" id="view-examples">
+  <div class="wrap">
+    <span class="eyebrow"><span class="dot" style="background:var(--mustard)"></span>Headline gallery</span>
+    <h2>What the trick looks like.</h2>
+    <p class="lede">These are written examples, not real stories — each one shows a specific technique misleading headlines lean on.</p>
+    <div class="grid grid-2" id="examplesGrid"></div>
+  </div>
+</div>
+
+<!-- ================= RESOURCES ================= -->
+<div class="view" id="view-resources">
+  <div class="wrap">
+    <span class="eyebrow"><span class="dot" style="background:var(--pink)"></span>Resources</span>
+    <h2>Keep these bookmarked.</h2>
+    <p class="lede">A short, curated list — fact-checking outlets, verification tools, and where to report misinformation when you spot it.</p>
+    <div id="resourcesList"></div>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">Fake News Detection &amp; Media Literacy Programme — a community engagement project.</div>
+</footer>
+
+<script>
+/* ---------------- navigation ---------------- */
+function showView(name){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('active', b.dataset.view===name));
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+document.getElementById('tabs').addEventListener('click', e=>{
+  const btn = e.target.closest('button');
+  if(!btn) return;
+  showView(btn.dataset.view);
+});
+
+/* ---------------- LEARN modules ---------------- */
+const modules = [
+  {title:"What actually counts as \u201cfake news\u201d?", body:"It's not one thing. Misinformation is false info shared without intent to deceive. Disinformation is false info made on purpose. Then there's satire (meant to be obviously joking), and clickbait (technically true, wildly exaggerated). Lumping them all together makes them harder to spot — knowing which one you're looking at is the first step."},
+  {title:"Why it spreads faster than the truth", body:"Studies on social platforms consistently find that surprising, emotional content gets shared more than calm, accurate content — outrage and fear travel fastest. Add an algorithm that rewards engagement over accuracy, and a false story can lap a correction before the correction even loads."},
+  {title:"Deepfakes and doctored media", body:"You don't need AI to mislead with an image — an old photo re-captioned with a new date and location works just as well, and it's far more common. AI-generated video and voice cloning raise the ceiling, but the everyday problem is still low-tech: cropped context, swapped captions, and reused footage."},
+  {title:"Anatomy of a clickbait headline", body:"Watch for absolute claims (\u201calways\u201d, \u201cnever\u201d, \u201cproven\u201d), vague authorities (\u201cscientists say\u201d, \u201cexperts warn\u201d with no names), and headlines that ask a question the article never actually answers. The goal of the headline is the click, not the accuracy."},
+  {title:"Echo chambers & filter bubbles", body:"Recommendation systems learn what keeps you scrolling and show you more of it — which quietly narrows what you see over time. It's not a conspiracy, it's a feedback loop. Following a few sources you'd normally skip is a simple way to widen it back out."},
+  {title:"Your part when you hit share", body:"Every forward is a small act of vouching — to the people who trust you. A quick 60-second check before sharing (source, date, does it check out elsewhere) isn't about being paranoid, it's just closing the easiest gap misinformation relies on."}
+];
+const modulesList = document.getElementById('modulesList');
+modules.forEach((m,i)=>{
+  const d = document.createElement('details');
+  d.className='module';
+  if(i===0) d.open = true;
+  d.innerHTML = `
+    <summary><span class="num">${String(i+1).padStart(2,'0')}</span>${m.title}<span class="chev">＋</span></summary>
+    <div class="body">${m.body}</div>`;
+  modulesList.appendChild(d);
+});
+
+/* ---------------- QUIZ ---------------- */
+const quizData = [
+  {headline:"Scientists Confirm Drinking Cold Water After Meals Causes Instant Weight Loss", isFake:true, why:"Classic miracle-cure framing — a bold health claim with no named study, no journal, and no numbers. \u201cScientists confirm\u201d is doing all the work here."},
+  {headline:"City Council Approves New Recycling Bins for Downtown Apartments Starting Next Month", isFake:false, why:"Mundane, specific, and checkable against a public meeting record. Boring local governance news is very often exactly what it looks like."},
+  {headline:"Leaked Report Claims a Major Juice Brand Secretly Adds Sugar to Look 'Natural'", isFake:true, why:"\u201cLeaked report\u201d with no link to the actual report is a common misdirection — it borrows the credibility of a document nobody can check."},
+  {headline:"Local High School Robotics Team Wins Regional Competition After Months of Practice", isFake:false, why:"Specific, low-stakes, and the kind of story a local paper or school would publish with names and a date attached."},
+  {headline:"Viral Video 'Proves' the Moon Landing Footage Was Filmed Underwater", isFake:true, why:"A decades-old conspiracy claim repackaged as breaking news. \u201cProves\u201d is a strong word for a video with no verifiable source."}
+];
+let qIdx=0, qScore=0, qAnswered=false;
+
+function buildProgress(){
+  const row = document.getElementById('progressRow');
+  row.innerHTML='';
+  quizData.forEach((_,i)=>{
+    const el = document.createElement('i');
+    if(i < qIdx) el.className='done';
+    else if(i===qIdx) el.className='now';
+    row.appendChild(el);
+  });
+}
+function renderQuestion(){
+  qAnswered=false;
+  document.getElementById('quizActive').style.display='block';
+  document.getElementById('quizResults').style.display='none';
+  buildProgress();
+  const q = quizData[qIdx];
+  document.getElementById('clipKicker').textContent = `Headline ${qIdx+1} of ${quizData.length}`;
+  document.getElementById('headlineText').textContent = q.headline;
+  document.getElementById('feedback').classList.remove('show');
+  document.getElementById('nextBtn').disabled = true;
+  const realBtn = document.getElementById('pickReal');
+  const fakeBtn = document.getElementById('pickFake');
+  [realBtn,fakeBtn].forEach(b=>{ b.disabled=false; b.className = b.id==='pickReal' ? 'choice real' : 'choice fake'; });
+}
+function answer(pickedFake){
+  if(qAnswered) return;
+  qAnswered = true;
+  const q = quizData[qIdx];
+  const correct = (pickedFake === q.isFake);
+  if(correct) qScore++;
+  updateScoreChip();
+
+  const realBtn = document.getElementById('pickReal');
+  const fakeBtn = document.getElementById('pickFake');
+  realBtn.disabled = true; fakeBtn.disabled = true;
+  const pickedBtn = pickedFake ? fakeBtn : realBtn;
+  const rightBtn = q.isFake ? fakeBtn : realBtn;
+  pickedBtn.classList.add(correct ? 'correct-pick' : 'wrong-pick');
+  if(!correct) rightBtn.classList.add('reveal-correct');
+
+  const stamp = document.getElementById('stampEl');
+  stamp.className = 'stamp ' + (correct ? 'good':'bad');
+  stamp.textContent = correct ? 'Nice — verified ✓' : 'Not quite ✗';
+  document.getElementById('whyText').textContent = q.why;
+  document.getElementById('feedback').classList.add('show');
+  document.getElementById('nextBtn').disabled = false;
+}
+document.getElementById('pickReal').addEventListener('click', ()=>answer(false));
+document.getElementById('pickFake').addEventListener('click', ()=>answer(true));
+document.getElementById('nextBtn').addEventListener('click', ()=>{
+  qIdx++;
+  if(qIdx >= quizData.length){ showResults(); } else { renderQuestion(); }
+});
+function showResults(){
+  document.getElementById('quizActive').style.display='none';
+  document.getElementById('quizResults').style.display='block';
+  buildProgress();
+  document.getElementById('finalScore').textContent = `${qScore}/${quizData.length}`;
+  let grade, blurb;
+  const pct = qScore/quizData.length;
+  if(pct >= 0.9){ grade='Myth-Busting Legend'; blurb='That\u2019s a near-perfect read. You\u2019re catching the tells most people scroll right past.'; }
+  else if(pct >= 0.7){ grade='Media Literacy Pro'; blurb='Solid instincts — a couple of headlines slipped through. Worth a pass through the Learn modules.'; }
+  else if(pct >= 0.5){ grade='Getting There'; blurb='You\u2019re about at the average. The Spot & Verify checklist is a quick way to sharpen this up.'; }
+  else { grade='Fact-Check Rookie'; blurb='Everyone starts here. Run through the six-step tip list, then come back and try again.'; }
+  document.getElementById('gradeStamp').textContent = grade;
+  document.getElementById('gradeBlurb').textContent = blurb;
+}
+function restartQuiz(){ qIdx=0; qScore=0; updateScoreChip(); renderQuestion(); }
+function updateScoreChip(){
+  document.getElementById('scoreChip').textContent = `Score: ${qScore}/${qIdx + (qAnswered?1:0)}`;
+}
+renderQuestion();
+
+/* ---------------- SIGNS ---------------- */
+const signs = [
+  {icon:"😱", color:"var(--coral)", title:"Over-the-top emotional headline", body:"Designed to make you react before you read — outrage, fear, or disbelief in the first five words."},
+  {icon:"👤", color:"var(--sky)", title:"No named author", body:"Real reporting is usually signed. \u201cStaff\u201d with no bio, or no byline at all, is worth a second look."},
+  {icon:"🔗", color:"var(--mustard)", title:"Copycat or unfamiliar domain", body:"Look closely at the URL — a near-identical spelling of a trusted outlet is a common trick."},
+  {icon:"📉", color:"var(--pink)", title:"No sources or data cited", body:"Big claims with nothing to check them against — no study, no name, no link."},
+  {icon:"🖋️", color:"var(--lime)", title:"Sloppy grammar or formatting", body:"Not proof by itself, but frequent typos and odd capitalization are common in low-effort content mills."},
+  {icon:"🖼️", color:"var(--coral)", title:"Image looks out of context", body:"Reverse-searching often reveals the photo is years old or from an unrelated event entirely."},
+  {icon:"⏱️", color:"var(--sky)", title:"Pressure to share right now", body:"\u201cShare before this gets taken down\u201d is a manufactured urgency that skips your usual filter."},
+  {icon:"🕵️", color:"var(--mustard)", title:"Only exists in one place", body:"If no other outlet is covering a supposedly huge story, that silence is itself a signal."}
+];
+const signsGrid = document.getElementById('signsGrid');
+signs.forEach(s=>{
+  const el = document.createElement('div');
+  el.className='sign-card';
+  el.innerHTML = `<div class="flag" style="background:${s.color}">${s.icon}</div><h3>${s.title}</h3><p>${s.body}</p>`;
+  signsGrid.appendChild(el);
+});
+
+/* ---------------- TIPS ---------------- */
+const tips = [
+  {title:"Read past the headline", body:"Headlines are written to be clicked, not to summarize. Read the first three paragraphs before deciding what you think."},
+  {title:"Check who's actually posting it", body:"Tap the account or outlet name. A new account, no history, or a vague \u201cabout\u201d page is a reason to slow down."},
+  {title:"Reverse-search the image", body:"Right-click (or long-press) → search the image. If it's older or from somewhere else entirely, that's your answer."},
+  {title:"Cross-check with two other outlets", body:"If a story is real and significant, more than one reputable source will have it within hours."},
+  {title:"Check the date and the context", body:"Old news re-shared as current is one of the most common — and easiest to catch — forms of misinformation."},
+  {title:"Run it past a fact-checker", body:"Sites like Alt News, BOOM Live, or PIB Fact Check exist specifically to verify viral claims — search the claim there before you forward it."}
+];
+const tipsCard = document.getElementById('tipsCard');
+tips.forEach((t,i)=>{
+  const el = document.createElement('div');
+  el.className='tip-row';
+  el.innerHTML = `<div class="tip-num">${i+1}</div><div><h3>${t.title}</h3><p>${t.body}</p></div>`;
+  tipsCard.appendChild(el);
+});
+
+/* ---------------- EXAMPLES ---------------- */
+const examples = [
+  {title:"\u201cYou Won't Believe What This One Ingredient Is Doing to Your Body\u201d", tags:["Curiosity gap","No specifics"], body:"Withholds the actual claim entirely to force a click. A real headline names the ingredient and the claim up front."},
+  {title:"\u201cThousands Report Mysterious Illness — Officials Silent\u201d", tags:["Vague scale","Implied cover-up"], body:"\u201cThousands\u201d and \u201cofficials\u201d are never specified. Implying a cover-up without naming who's supposedly covering it up is a red flag on its own."},
+  {title:"\u201cShocking: 90% of Experts Agree This Common Habit Is Dangerous\u201d", tags:["Fake statistic","Anonymous experts"], body:"A precise-sounding number attached to nameless \u201cexperts\u201d with no linked survey or study — impossible to verify by design."},
+  {title:"\u201cThis Changes Everything We Thought We Knew About [Topic]\u201d", tags:["Vague overstatement"], body:"Sounds dramatic while committing to nothing specific — easy to write about literally any topic with zero new information."},
+];
+const examplesGrid = document.getElementById('examplesGrid');
+examples.forEach(e=>{
+  const el = document.createElement('div');
+  el.className='ex-card';
+  el.innerHTML = `<h3>${e.title}</h3><div class="tag-row">${e.tags.map(t=>`<span class="flaw-tag">${t}</span>`).join('')}</div><p>${e.body}</p>`;
+  examplesGrid.appendChild(el);
+});
+
+/* ---------------- RESOURCES ---------------- */
+const resources = [
+  {group:"Fact-checking outlets", items:[
+    {name:"Alt News", desc:"India-focused fact-checking of viral claims, images and video"},
+    {name:"BOOM Live", desc:"Verifies trending misinformation across text, photo and video"},
+    {name:"PIB Fact Check", desc:"Government-run unit checking claims about official policy"},
+    {name:"Snopes", desc:"One of the longest-running general fact-checking sites"}
+  ]},
+  {group:"Verification tools", items:[
+    {name:"Google Reverse Image Search", desc:"Find where a photo first appeared and its original context"},
+    {name:"TinEye", desc:"Another reverse image search engine, good for tracing edits"}
+  ]},
+  {group:"Report it", items:[
+    {name:"Report on the platform", desc:"WhatsApp, Instagram and Facebook all have a built-in \u2018report\u2019 option on posts and forwards"}
+  ]},
+  {group:"Learn more", items:[
+    {name:"News Literacy Project", desc:"Free lessons and classroom material on spotting misinformation"}
+  ]}
+];
+const resourcesList = document.getElementById('resourcesList');
+resources.forEach(g=>{
+  const wrap = document.createElement('div');
+  wrap.className='res-group';
+  wrap.innerHTML = `<h3>${g.group}</h3><div class="res-list">${
+    g.items.map(it=>`<div class="res-item"><div><div class="name">${it.name}</div><div class="desc">${it.desc}</div></div><div class="go">↗</div></div>`).join('')
+  }</div>`;
+  resourcesList.appendChild(wrap);
+});
+</script>
+</body>
+</html>
